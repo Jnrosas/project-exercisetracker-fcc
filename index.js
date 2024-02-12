@@ -123,7 +123,11 @@ app.get('/api/users/:_id/logs?', async (req, res, next) => {
       if (limit < exercises.log.length) {
         exercises.log = exercises.log.slice(0, limit);
       };
-      res.json({ username: user.username, count: exercises.log.length, _id: id, log: exercises.log});
+      let arr = exercises.log.map(items => {
+        let formattedDate = new Date(items.date).toDateString()
+        return {  description: items.description, duration: items.duration, date: formattedDate }
+      })
+      res.json({ username: user.username, count: exercises.log.length, _id: id, log: arr});
     } else {res.send('No user found in Users database')};
   } catch (error) {
       return next(error);
