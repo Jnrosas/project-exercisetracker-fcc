@@ -27,9 +27,9 @@ const User = mongoose.model('User', userSchema);
 const exerciseSchema = new Schema({
   _id: {type: String, required: true},
   username: {type: String, required: true},
-  description: {type: String, required: true},
-  duration: {type: Number, required: true},
-  date: {type: Date, default: Date.now},
+  log: [{description: {type: String, required: true}, 
+        duration: {type: Number, required: true},
+        date: {type: Date, default: Date.now}}],
 });
 const Exercise = mongoose.model('Exercise', exerciseSchema);
 
@@ -59,17 +59,17 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     const id = req.params._id;
     const description = req.body.description;
     const duration = req.body.duration;
-    const date = req.body.date? new Date(req.body.date) : new Date();
+    const date = req.body.date? new Date((req.body.date).replaceAll('-', ',')) : new Date();
     const users = await User.findById(id);
     const exercises = await Exercise.findById(id);
-    let log = [];
     if (users != null && exercises == null) {
+      let log = [];
+      log.push({description: description, duration: duration, date: date});
+      console.log(log);
       const newExercise = new Exercise({
         _id: id,
         username: users.username,
-        description: description,
-        duration: duration,
-        date: date
+        log: log
       });
       res.json({
         username: users.username,
@@ -79,13 +79,21 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
         _id: id
       });
       newExercise.save();
-    } else if (users!= null && exercises != null) {
-        log.push({
-          description: description,
-          duration: duration,
-          date: date.toDateString()
-        }); console.log(log);
-      } else {res.send('No username found in Users database')};
+    } 
+    if (users != null && exercises != null) {
+      exercises.log.push({description: description, duration: duration, date: date});
+      const updateExercise = await Exercise.findByIdAndUpdate(id, {log: exercises.log});
+      console.log(exercises.log);
+      res.json({
+        username: users.username,
+        description: description,
+        duration: duration,
+        date: date.toDateString(),
+        _id: id
+      });
+      updateExercise.save();
+    } 
+    else {res.send('No username found in Users database')};
   } catch (error) {
       return next(error);
     };
