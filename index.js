@@ -59,12 +59,12 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     const id = req.params._id;
     const description = req.body.description;
     const duration = req.body.duration;
-    const date = req.body.date? new Date((req.body.date).replaceAll('-', ',')) : new Date();
+    const date = req.body.date? new Date(req.body.date.replaceAll('-', ',')) : new Date();
     const users = await User.findById(id);
     const exercises = await Exercise.findById(id);
     if (users != null && exercises == null) {
       let log = [];
-      log.push({description: description, duration: duration, date: date});
+      log.push({description: description, duration: duration, date: date.toDateString()});
       const newExercise = new Exercise({
         _id: id,
         username: users.username,
@@ -80,7 +80,7 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
       newExercise.save();
     } 
     if (users != null && exercises != null) {
-      exercises.log.push({description: description, duration: duration, date: date});
+      exercises.log.push({description: description, duration: duration, date: date.toDateString()});
       const updateExercise = await Exercise.findByIdAndUpdate(id, {log: exercises.log});
       res.json({
         username: users.username,
@@ -107,23 +107,20 @@ app.get('/api/users/:_id/logs?', async (req, res, next) => {
     if (user) {
       let exercises = await Exercise.findById(id);
       if (from) {
-        console.log('tiene from');
-        let fromDate = new Date(from.replaceAll('-', ','));
+        let fromDate = new Date(from);
         exercises.log.filter(item => {
           let itemDate = new Date(item.date);
           return itemDate >= fromDate;
         });
       };
       if (to) {
-        console.log('tiene to');
-        let toDate = new Date(to.replaceAll('-', ','));
+        let toDate = new Date(to);
         exercises.log.filter(item => {
           let itemDate = new Date(item.date);
           return itemDate <= toDate;
         });
       };
       if (limit < exercises.log.length) {
-        console.log('tiene limite');
         exercises.log = exercises.log.slice(0, limit);
       };
       res.json({ username: user.username, count: exercises.log.length, _id: id, log: exercises.log});
