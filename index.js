@@ -105,29 +105,28 @@ app.get('/api/users/:_id/logs?', async (req, res, next) => {
     let limit = req.query.limit;
     let user = await User.findById(id);
     if (user) {
-      let exercises = await Exercise.find({_id: id});
-      let log = [];
-      for (let i = 0; i < exercises.length; i++) {
-        log.push({description: exercises[i].description, duration: exercises[i].duration, date: exercises[i].date.toDateString()});
-      };
+      let exercises = await Exercise.findById(id);
       if (from) {
-        let fromDate = new Date(from);
-        log.filter(item => {
+        console.log('tiene from');
+        let fromDate = new Date(from.replaceAll('-', ','));
+        exercises.log.filter(item => {
           let itemDate = new Date(item.date);
           return itemDate >= fromDate;
         });
       };
       if (to) {
-        let toDate = new Date(to);
-        log.filter(item => {
+        console.log('tiene to');
+        let toDate = new Date(to.replaceAll('-', ','));
+        exercises.log.filter(item => {
           let itemDate = new Date(item.date);
           return itemDate <= toDate;
         });
       };
-      if (limit < log.length) {
-        log = log.slice(0, limit);
+      if (limit < exercises.log.length) {
+        console.log('tiene limite');
+        exercises.log = exercises.log.slice(0, limit);
       };
-      res.json({ username: user.username, count: log.length, _id: id, log: log});
+      res.json({ username: user.username, count: exercises.log.length, _id: id, log: exercises.log});
     } else {res.send('No user found in Users database')};
   } catch (error) {
       return next(error);
