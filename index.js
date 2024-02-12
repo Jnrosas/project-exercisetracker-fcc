@@ -65,7 +65,6 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     if (users != null && exercises == null) {
       let log = [];
       log.push({description: description, duration: duration, date: date});
-      console.log(log);
       const newExercise = new Exercise({
         _id: id,
         username: users.username,
@@ -83,7 +82,6 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     if (users != null && exercises != null) {
       exercises.log.push({description: description, duration: duration, date: date});
       const updateExercise = await Exercise.findByIdAndUpdate(id, {log: exercises.log});
-      console.log(exercises.log);
       res.json({
         username: users.username,
         description: description,
