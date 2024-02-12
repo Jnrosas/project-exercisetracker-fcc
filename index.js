@@ -107,14 +107,14 @@ app.get('/api/users/:_id/logs?', async (req, res, next) => {
     if (user) {
       let exercises = await Exercise.findById(id);
       if (from) {
-        let fromDate = new Date(from);
+        let fromDate = new Date(from.replaceAll('-', ','));
         exercises.log.filter(item => {
           let itemDate = new Date(item.date);
           return itemDate >= fromDate;
         });
       };
       if (to) {
-        let toDate = new Date(to);
+        let toDate = new Date(to.replaceAll('-', ','));
         exercises.log.filter(item => {
           let itemDate = new Date(item.date);
           return itemDate <= toDate;
