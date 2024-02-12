@@ -37,14 +37,9 @@ app.post('/api/users', async (req, res, next) => {
   try {
     const username = req.body.username;
     if (username) {
-      const userFound = await User.find({username: username});
-      if (!userFound.length) {
-        const newUser = new User({username: username});
-        res.json({username: newUser.username, _id: newUser._id});
-        await newUser.save();
-      } else {
-          res.json({username: userFound[0].username, _id: userFound[0]._id});
-        };
+      const newUser = new User({username: username});
+      res.json({username: newUser.username, _id: newUser._id});
+      await newUser.save();
     } else {res.send('Enter a username')};
   } catch (error) {
       return next(error);
@@ -53,7 +48,7 @@ app.post('/api/users', async (req, res, next) => {
 app.get('/api/users', async (req, res, next) => {
   try {
     let user = await User.find({});
-    user? res.json(user) : res.send('No users registered');
+    user? res.json(user) : res.send('No users registered in db');
   } catch (error) {
       return next(error);
   }
@@ -65,24 +60,32 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     const description = req.body.description;
     const duration = req.body.duration;
     const date = req.body.date? new Date(req.body.date) : new Date();
-    const username = await User.findById(id);
-    if (username) {
+    const users = await User.findById(id);
+    const exercises = await Exercise.findById(id);
+    let log = [];
+    if (users != null && exercises == null) {
       const newExercise = new Exercise({
         _id: id,
-        username: username.username,
+        username: users.username,
         description: description,
         duration: duration,
         date: date
       });
       res.json({
-        username: username.username,
+        username: users.username,
         description: description,
         duration: duration,
         date: date.toDateString(),
         _id: id
       });
       newExercise.save();
-    } else {res.send('No username found in database')};
+    } else if (users!= null && exercises != null) {
+        log.push({
+          description: description,
+          duration: duration,
+          date: date.toDateString()
+        }); console.log(log);
+      } else {res.send('No username found in Users database')};
   } catch (error) {
       return next(error);
     };
