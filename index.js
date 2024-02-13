@@ -1,3 +1,6 @@
+// A ESTA VERSION LE FALTA PASAR 1 TEST DE FCC. QUE LA RESPONSE DEL ENDPOINT EXERCISES
+// SEA EL USER ACTUALIZADO. LOGRADO EN LA VERSION DEL FILE INDEX2.JS
+
 const express = require('express');
 const app = express();
 const cors = require('cors');

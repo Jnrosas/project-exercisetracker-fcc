@@ -1,3 +1,5 @@
+// ESTA ES LA VERSION QUE PASA TODOS LOS TESTS DE FCC
+
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -9,30 +11,32 @@ app.use(bodyParser.urlencoded({extended: false}));
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-let port = process.env.PORT || 3000;
+let port = process.env.PORT || 3000; //saca el numero de puerto del archivo sample.env
 
-app.use(express.static('public'));
+app.use(express.static('public')); //levanta el css de la carpeta public
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => { //levanta el html de la carpeta views
   res.sendFile(__dirname + '/views/index.html')
 });
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema; //crea el schema en Mongodb
 
-const exerciseSchema = new Schema({
+const exerciseSchema = new Schema({ //crea el schema o estructura de tabla exercisesSchema
   description: {type: String, required: true}, 
   duration: {type: Number, required: true},
   date: {type: Date, default: Date.now}
   });
 
-const userSchema = new Schema({
+const userSchema = new Schema({ //crea el schema o estructura de tabla userSchema
   username: {type: String, required: true},
   log: [exerciseSchema]
 });
 
+//crea los modelos de los 2 schemas
 const User = mongoose.model('User', userSchema);
 const Exercise = mongoose.model('Exercise', exerciseSchema);
 
+//endpoint para crear el usuario y para obtenerlo
 app.post('/api/users', async (req, res, next) => {
   try {
     const { username } = req.body;
@@ -53,6 +57,7 @@ app.post('/api/users', async (req, res, next) => {
     }
 });
 
+//endpoint para crear el log de ejercicios y anexarlo al array log del usuario
 app.post('/api/users/:_id/exercises', async (req, res, next) => {
   try {
     let { description, duration, date } = req.body;
@@ -77,6 +82,7 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     };
 });
 
+//endpoint para filtrar por fechas y por cantidad de registros
 app.get('/api/users/:_id/logs?', async (req, res, next) => {
   try {
     let { _id } = req.params;
@@ -111,7 +117,7 @@ app.get('/api/users/:_id/logs?', async (req, res, next) => {
   }
 });
 
-
+//para que el puerto este listo escuchando cambios
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
